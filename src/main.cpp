@@ -30,22 +30,21 @@
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 
-/*
 std::string dataDir = "/storage/emulated/0/games/org.levimc";
 std::vector<std::string> shadersList;
-std::string assetsToRoot;*/
+std::string assetsToRoot;
 
 static AAsset* (*orig_AAssetManager_open)(AAssetManager*, const char*, int) = nullptr;
 
 static AAsset* custom_AAssetManager_open(AAssetManager* mgr, const char* filename, int mode) {
-    if ((strstr(filename, "title.png"))) {
-        //std::string fName = std::string(filename).substr(std::string(filename).find_last_of("/") + 1);
-        /*if (std::find(shadersList.begin(), shadersList.end(), fName) != shadersList.end()) {
+    if ((strstr(filename, ".material.bin"))) {
+        std::string fName = std::string(filename).substr(std::string(filename).find_last_of("/") + 1);
+        if (std::find(shadersList.begin(), shadersList.end(), fName) != shadersList.end()) {
             LOGI("Patched file %s via AAssetManager", fName.c_str());
-            return orig_AAssetManager_open(mgr, (assetsToRoot + dataDir + "/shaders/" + fName).c_str(), mode); // uses custom asset path like /path/to/assets/../../../ to get to root
-        } else {*/
-            return orig_AAssetManager_open(mgr, /*filename*/"assets/resource_packs/vanilla/pack_icon.png", mode);
-        //}
+            return orig_AAssetManager_open(mgr, (assetsToRoot + dataDir + "/shaders/" + fName).c_str(), mode);
+        } else {
+            return orig_AAssetManager_open(mgr, filename/*"assets/resource_packs/vanilla/pack_icon.png"*/, mode);
+        }
     } else {
         return orig_AAssetManager_open(mgr, filename, mode);
     }
@@ -74,7 +73,7 @@ static void tryHook() {
         LOGI("Successfully = %d", r);
     }
 }
-/*
+
 static int countCharacterOccurrences(const std::string& str, char character) {
     int count = 0;
     for (char c : str) {
@@ -83,9 +82,9 @@ static int countCharacterOccurrences(const std::string& str, char character) {
         }
     }
     return count;
-}*/
+}
 
-static void Setup() {/*
+static void Setup() {
     std::string assetsDir;
 
     char originalDir[PATH_MAX];
@@ -117,7 +116,7 @@ static void Setup() {/*
             }
         }
         closedir(dr);
-    }*/
+    }
     tryHook();
 }
 
