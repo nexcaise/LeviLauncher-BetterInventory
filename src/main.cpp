@@ -26,24 +26,35 @@
 #include "pl/Hook.h"
 #include "pl/Gloss.h"
 
-#define TAG "AssetsManager - Native"
+#define TAG "Shaders Loader"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__)
 
-std::string dataDir = "/storage/emulated/0/games/org.levimc";
+std::string dataDir = "/storage/emulated/0/games";
 std::vector<std::string> shadersList;
+
+int countCharacterOccurrences(const std::string& str, char character) {
+    int count = 0;
+    for (char c : str) {
+        if (c == character) {
+            count++;
+        }
+    }
+    return count;
+}
+
 std::string assetsToRoot;
 
 static AAsset* (*orig_AAssetManager_open)(AAssetManager*, const char*, int) = nullptr;
 
 static AAsset* custom_AAssetManager_open(AAssetManager* mgr, const char* filename, int mode) {
     if ((strstr(filename, ".material.bin"))) {
-        std::string fName = std::string(filename).substr(std::string(filename).find_last_of("/") + 1);
-        if (std::find(shadersList.begin(), shadersList.end(), fName) != shadersList.end()) {
-            LOGI("Patched file %s via AAssetManager", fName.c_str());
+            std::string fName = std::string(filename).substr(std::string(filename).find_last_of("/") + 1);
+            if (std::find(shadersList.begin(), shadersList.end(), fName) != shadersList.end()) {
+            LOGI("Patched shader %s via AAssetManager", fName.c_str());
             return orig_AAssetManager_open(mgr, (assetsToRoot + dataDir + "/shaders/" + fName).c_str(), mode);
         } else {
-            return orig_AAssetManager_open(mgr, filename/*"assets/resource_packs/vanilla/pack_icon.png"*/, mode);
+            return orig_AAssetManager_open(mgr, filename, mode);
         }
     } else {
         return orig_AAssetManager_open(mgr, filename, mode);
@@ -74,16 +85,6 @@ static void tryHook() {
     }
 }
 
-static int countCharacterOccurrences(const std::string& str, char character) {
-    int count = 0;
-    for (char c : str) {
-        if (c == character) {
-            count++;
-        }
-    }
-    return count;
-}
-
 static void Setup() {
     std::string assetsDir;
 
@@ -105,7 +106,7 @@ static void Setup() {
     for(int i = 0; i<occurrences; i++) {
         assetsToRoot+="../";
     }
-
+    
     DIR *dr;
     struct dirent *en;
     dr = opendir((dataDir + "/shaders").c_str());
@@ -117,6 +118,7 @@ static void Setup() {
         }
         closedir(dr);
     }
+    
     tryHook();
 }
 
