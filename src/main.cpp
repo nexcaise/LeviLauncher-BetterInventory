@@ -1,12 +1,12 @@
 #include <jni.h>
 #include <android/log.h>
 #include <dlfcn.h>
-#include <cstring>
 #include <cstdint>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fstream>
 #include <string>
+#include <thread>
 
 #include "util/ItemStackBase.h"
 #include "pl/Gloss.h"
@@ -17,10 +17,11 @@
 
 class ShulkerBoxBlockItem;
 
-using Shulker_appendHover_t =
+using Fn =
     void (*)(void*, ItemStackBase*, void*, std::string&, bool);
 
-static Shulker_appendHover_t g_orig = nullptr;
+static Fn g_orig = nullptr;
+static int g_index = -1;
 
 static void hookFn(
     ShulkerBoxBlockItem* self,
@@ -29,22 +30,17 @@ static void hookFn(
     std::string& out,
     bool flag
 ) {
-    LOGI("HOOK CALLED self=%p", self);
-    out.append("\n§7[Hooked appendFormattedHovertext]");
+    LOGI("VALID HIT index=%d self=%p", g_index, self);
+    out.append("\n§7[Hooked]");
     g_orig(self, stack, level, out, flag);
 }
 
-static bool inLib(uintptr_t fn, uintptr_t start, uintptr_t end) {
-    return fn >= start && fn <= end;
-}
-
-static bool findAndHook() {
+static bool hookOnce() {
     void* h = dlopen("libminecraftpe.so", RTLD_NOLOAD);
     if (!h) h = dlopen("libminecraftpe.so", RTLD_LAZY);
     if (!h) return false;
 
-    uintptr_t libStart = 0;
-    uintptr_t libEnd = 0;
+    uintptr_t libStart = 0, libEnd = 0;
     std::ifstream maps("/proc/self/maps");
     std::string line;
 
@@ -59,8 +55,8 @@ static bool findAndHook() {
     if (!libStart || !libEnd) return false;
 
     const char* name = "19ShulkerBoxBlockItem";
-    size_t len = strlen(name);
     uintptr_t zts = 0;
+    size_t len = strlen(name);
 
     std::ifstream maps2("/proc/self/maps");
     while (std::getline(maps2, line)) {
@@ -121,38 +117,42 @@ static bool findAndHook() {
 
     if (!vtable) return false;
 
-    LOGI("VTABLE = 0x%lx", vtable);
-
     uintptr_t* vt = (uintptr_t*)vtable;
 
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < 120; i++) {
         uintptr_t fn = vt[i];
         if (!fn) break;
+        if (fn < libStart || fn > libEnd) continue;
 
-        if (!inLib(fn, libStart, libEnd)) continue;
+        g_orig = (Fn)fn;
+        g_index = i;
 
-        LOGI("vtable[%d] = %p", i, (void*)fn);
+        uintptr_t page = ((uintptr_t)&vt[i]) & ~(4095UL);
+        mprotect((void*)page, 4096, PROT_READ | PROT_WRITE);
+        vt[i] = (uintptr_t)&hookFn;
+        mprotect((void*)page, 4096, PROT_READ);
 
-        if (!g_orig) {
-            g_orig = (Shulker_appendHover_t)fn;
-
-            uintptr_t page = ((uintptr_t)&vt[i]) & ~(4095UL);
-            mprotect((void*)page, 4096, PROT_READ | PROT_WRITE);
-            vt[i] = (uintptr_t)&hookFn;
-            mprotect((void*)page, 4096, PROT_READ);
-
-            LOGI("HOOKED INDEX = %d", i);
-            return true;
-        }
+        LOGI("HOOK TRY index=%d fn=%p", i, (void*)fn);
+        return true;
     }
 
     return false;
+}
+
+static void hookLoop() {
+    for (int i = 0; i < 10; i++) {
+        if (hookOnce()) {
+            LOGI("HOOK INSTALLED, open inventory now");
+            return;
+        }
+        sleep(1);
+    }
+    LOGE("HOOK FAILED");
 }
 
 __attribute__((constructor))
 void Init() {
     LOGI("Init");
     GlossInit(true);
-    if (!findAndHook())
-        LOGE("AUTO DETECT HOOK FAILED");
+    std::thread(hookLoop).detach();
 }
