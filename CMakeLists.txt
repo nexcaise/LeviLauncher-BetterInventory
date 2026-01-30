@@ -39,5 +39,5 @@ target_link_libraries(preloader PUBLIC fmt::fmt)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-add_library(AssetsManager SHARED src/main.cpp src/Item.cpp src/ItemRegistryRef.cpp ${preloader_android_SOURCE_DIR}/src/pl/internal/AndroidUtils.cpp)
+add_library(AssetsManager SHARED src/main.cpp)
 target_link_libraries(AssetsManager preloader log)
