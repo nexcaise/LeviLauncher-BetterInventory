@@ -117,7 +117,7 @@ static bool findAndHookShulkerBoxBlockItem() {
 
     if (!vtableAddr) return false;
 
-    uintptr_t* slot53 = (uintptr_t*)(vtableAddr + 54 * sizeof(void*));
+    uintptr_t* slot53 = (uintptr_t*)(vtableAddr + 55 * sizeof(void*));
 
     g_ShulkerBoxBlockItem_appendFormattedHovertext_orig =
         (Shulker_appendHover_t)(*slot53);
