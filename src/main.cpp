@@ -28,9 +28,8 @@ static void ShulkerBoxBlockItem_appendFormattedHovertext_hook(
     std::string& out,
     bool flag)
 {
-    if (g_ShulkerBoxBlockItem_appendFormattedHovertext_orig) g_ShulkerBoxBlockItem_appendFormattedHovertext_orig(self, stack, level, out, flag);
-
     out.append("\n§7[Hooked appendFormattedHovertext]");
+    g_ShulkerBoxBlockItem_appendFormattedHovertext_orig(self, stack, level, out, flag);
 }
 
 static bool findAndHookShulkerBoxBlockItem() {
