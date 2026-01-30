@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <string>
+#include "util/ItemStackBase.h"
 
 //#include "common/transition.h"
 #include "pl/Gloss.h"
@@ -15,33 +16,23 @@
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-static void (*g_Item_appendFormattedHovertext_orig)(
-    void* /*this*/,
-    void* /*ItemStackBase*/,
-    void* /*Level*/,
-    std::string* /*out*/,
-    bool /*advanced*/
-) = nullptr;
 
-static void Item_appendFormattedHovertext_hook(
-    void* thisPtr,
-    void* itemStack,
+class ShulkerBoxBlockItem;
+
+using Shulker_appendHover_t = void (*)(void*, ItemStackBase*, void*, std::string&, bool);
+
+inline Shulker_appendHover_t ShulkerBoxBlockItem_appendFormattedHovertext_orig = nullptr;
+
+inline void ShulkerBoxBlockItem_appendFormattedHovertext_hook(
+    ShulkerBoxBlockItem* self,
+    ItemStackBase* stack,
     void* level,
-    std::string* out,
-    bool advanced
-) {
-    if (g_Item_appendFormattedHovertext_orig) {
-        g_Item_appendFormattedHovertext_orig(
-            thisPtr,
-            itemStack,
-            level,
-            out,
-            true/*advanced*/
-        );
-    }
-    if (out) {
-        out->append("\n§7[Hooked appendFormattedHovertext]");
-    }
+    std::string& out,
+    bool flag)
+{
+    if (ShulkerBoxBlockItem_appendFormattedHovertext_orig) ShulkerBoxBlockItem_appendFormattedHovertext_orig(self, stack, level, out, flag);
+
+    out.append("\n§7[Hooked appendFormattedHovertext]");
 }
 
 static bool findAndHookItemAppendHovertext() {
@@ -62,7 +53,6 @@ static bool findAndHookItemAppendHovertext() {
     std::ifstream maps("/proc/self/maps");
     std::string line;
 
-    // 🔍 cari "4Item"
     while (std::getline(maps, line)) {
         if (line.find("libminecraftpe.so") == std::string::npos) continue;
         if (line.find("r--p") == std::string::npos &&
@@ -86,7 +76,6 @@ static bool findAndHookItemAppendHovertext() {
         return false;
     }
 
-    // 🔍 cari typeinfo
     std::ifstream maps2("/proc/self/maps");
     while (std::getline(maps2, line)) {
         if (line.find("libminecraftpe.so") == std::string::npos) continue;
@@ -130,38 +119,28 @@ static bool findAndHookItemAppendHovertext() {
     }
 
     if (!vtableAddr) {
-        LOGE("Failed to find Item vtable");
+        LOGE("Failed to find vtable");
         return false;
     }
 
-    // 🎯 index 54
     uintptr_t* slot = (uintptr_t*)(vtableAddr + 53 * sizeof(void*));
-    g_Item_appendFormattedHovertext_orig =
-        (decltype(g_Item_appendFormattedHovertext_orig))(*slot);
+    ShulkerBoxBlockItem_appendFormattedHovertext_orig =
+        (decltype(ShulkerBoxBlockItem_appendFormattedHovertext_orig))(*slot);
 
     LOGI("Original appendFormattedHovertext at 0x%lx",
-         (uintptr_t)g_Item_appendFormattedHovertext_orig);
+         (uintptr_t)ShulkerBoxBlockItem_appendFormattedHovertext_orig);
 
-    // 🛠️ patch vtable
     uintptr_t page = (uintptr_t)slot & ~(4095UL);
     mprotect((void*)page, 4096, PROT_READ | PROT_WRITE);
-    *slot = (uintptr_t)&Item_appendFormattedHovertext_hook;
+    *slot = (uintptr_t)&ShulkerBoxBlockItem_appendFormattedHovertext_hook;
     mprotect((void*)page, 4096, PROT_READ);
 
-    LOGI("Successfully hooked Item::appendFormattedHovertext");
+    LOGI("Successfully hooked appendFormattedHovertext");
     return true;
 }
-/*
-extern "C" __attribute__((visibility("default")))
-void LeviMod_Load() {
-    GlossInit(true);
-    if(!findAndHookItemAppendHovertext()) LOGE("Error Cant hook!");
-    //Setup();
-}*/
 
 __attribute__((constructor))
-void /*AssetsManager_*/Init() {
+void Init() {
     GlossInit(true);
     if(!findAndHookItemAppendHovertext()) LOGE("Error Cant hook!");
-    //Setup();
 }
