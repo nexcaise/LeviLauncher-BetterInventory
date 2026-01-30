@@ -1,4 +1,5 @@
 #include "ItemRegistry.hpp"
+#include "ItemRegistryRef.hpp"
 
 std::shared_ptr<ItemRegistry> ItemRegistryRef::_lockRegistry() const
 {
