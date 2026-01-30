@@ -2,8 +2,7 @@
 #pragma once
 #include <unordered_map>
 #include "SharedPtr.hpp"
-
-class Item;
+#include "Item.hpp"
 
 class ItemRegistry {
 public:

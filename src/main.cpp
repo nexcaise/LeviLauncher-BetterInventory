@@ -44,10 +44,10 @@ void VanillaItems_registerItems(
 			experiments
 		);
 
-		ItemRegistry registry = itemRegistry._lockRegistry().get();
-		for (auto& pair : registry.mIdToItemMap)
-        {
-            pair.second.get()->setAllowOffhand(true);
+		ItemRegistry* registry = itemRegistry._lockRegistry().get();
+
+        for (auto& pair : registry->mIdToItemMap) {
+            pair.second->setAllowOffhand(true);
         }
 }
 
