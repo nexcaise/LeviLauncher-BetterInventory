@@ -10,16 +10,6 @@ class ItemRegistry;
 class StringHash {
 public:
     int mHash;
-
-    StringHash(const char* str) : 
-        mHash(StringToNameId(str)) 
-    {
-    }
-
-    StringHash(const std::string& str) :
-        mHash(StringToNameId(str)) 
-    {
-    }
 };
 
 class ItemRegistryRef {
