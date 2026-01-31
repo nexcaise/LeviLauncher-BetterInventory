@@ -240,7 +240,7 @@ static bool findAndHookHoverRenderer() {
 
     if (!vtableAddr) return false;
 
-    uintptr_t* slot = (uintptr_t*)(vtableAddr + 17 * sizeof(void*));
+    uintptr_t* slot = (uintptr_t*)(vtableAddr + 18 * sizeof(void*));
 
     g_HoverRenderer_renderHoverBox_orig =
         (HoverRenderer_renderHoverBox_t)(*slot);
