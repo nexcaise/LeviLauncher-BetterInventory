@@ -46,7 +46,7 @@ void hook(
     for (auto& pair : registry->mIdToItemMap)
     {
         LOGI("ns: %s", pair.second.get()->mNamespace.c_str());
-        
+        LOGI("rn: %s", pair.second.get()->mRawNameId.c_str());
     }
 }
 
