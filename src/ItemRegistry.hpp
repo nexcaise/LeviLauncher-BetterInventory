@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "SharedPtr.hpp"
 #include "Item.hpp"
+#include <vector>
 
 class ItemRegistry {
 public:
