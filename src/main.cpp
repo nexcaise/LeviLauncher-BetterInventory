@@ -55,7 +55,7 @@ __attribute__((constructor))
 void Init() {
     GlossInit(true);
     void* sym = (void*)GlossSymbol(GlossOpen("libminecraftpe.so"),
-        "_ZN12VanillaItems13registerItemsERN6cereal13ReflectionCtxE15ItemRegistryRefRK15BaseGameVersionRK11ExperimentsE3", nullptr);
+        "_ZN12VanillaItems13registerItemsERN6cereal13ReflectionCtxE15ItemRegistryRefRK15BaseGameVersionRK11ExperimentsE3$_0", nullptr);
     if (sym) {
         GHook h = GlossHook(sym, (void*)hook, (void**)&orig);
         if (h) {
