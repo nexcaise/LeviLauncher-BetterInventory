@@ -174,7 +174,7 @@ static bool findAndHookHoverRenderer() {
 
     if (!libBase) return false;
 
-    const char* typeinfoName = "19ShulkerBoxBlockItem";
+    const char* typeinfoName = "17HoverTextRenderer";
     size_t nameLen = strlen(typeinfoName);
     uintptr_t typeinfoNameAddr = 0;
 
@@ -240,7 +240,7 @@ static bool findAndHookHoverRenderer() {
 
     if (!vtableAddr) return false;
 
-    uintptr_t* slot = (uintptr_t*)(vtableAddr + 18 * sizeof(void*));
+    uintptr_t* slot = (uintptr_t*)(vtableAddr + 17 * sizeof(void*));
 
     g_HoverRenderer_renderHoverBox_orig =
         (HoverRenderer_renderHoverBox_t)(*slot);
