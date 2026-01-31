@@ -1,8 +1,12 @@
 #pragma once
 #include <memory>
-class ItemRegistry;
+#include <unordered_map>
+#include "SharedPtr.hpp"
+#include "Item.hpp"
 
 class HashedString;
+
+class ItemRegistry;
 
 class ItemRegistryRef {
 public:
