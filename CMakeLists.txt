@@ -50,7 +50,6 @@ set_target_properties(dobby PROPERTIES
 add_library(AssetsManager SHARED
     src/main.cpp
     src/Item.cpp
-    src/ItemRegistryRef.cpp
 )
 
 target_include_directories(AssetsManager PRIVATE
