@@ -8,5 +8,5 @@
 class ItemRegistry {
 public:
     std::vector<SharedPtr<Item>> mItemRegistry;
-    std::unordered_map<int32_t, WeakPtr<Item>> mIdToItemMap;
+    std::unordered_map<int, WeakPtr<Item>> mIdToItemMap;
 };

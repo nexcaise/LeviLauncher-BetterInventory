@@ -47,7 +47,7 @@ void hook(
     //auto registry = itemRegistry.mWeakRegistry.lock();
 
     for (auto& [id, weak] : registry->mIdToItemMap) {
-        auto item = weak.lock();
+        auto item = weak;
         if (item) {
             item->setAllowOffhand(true);
         }
