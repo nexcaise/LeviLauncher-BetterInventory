@@ -6,9 +6,4 @@
 class ItemRegistryRef {
 public:
     std::weak_ptr<ItemRegistry> mWeakRegistry;
-
-    inline std::shared_ptr<ItemRegistry> _lockRegistry() const {
-        auto sp = mWeakRegistry.lock();
-        return sp;
-    }
 };

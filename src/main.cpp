@@ -41,8 +41,8 @@ void hook(
     LOGI("Hook::Running");
     orig(self, uk, itemRegistry, baseGameVersion, experiments);
     
-    ItemRegistry* registryPtr = itemRegistry._lockRegistry();
-    ItemRegistry& reg = *registryPtr;
+	ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
+    ItemRegistry& reg = *registry;
     
     for (auto& pair : reg.mIdToItemMap)
     {
