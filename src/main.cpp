@@ -39,7 +39,7 @@ void hook(
         const Experiments& experiments
 ) {
     LOGI("Hook::Running");
-    ItemRegistry.shutdown();
+    itemRegistry.shutdown();
     orig(self, uk, itemRegistry, baseGameVersion, experiments);
     /*
 	ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
