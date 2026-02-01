@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.18)
-project(AssetsManager LANGUAGES C CXX)
+project(OffhandMod LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,17 +47,17 @@ set_target_properties(dobby PROPERTIES
     ${CMAKE_SOURCE_DIR}/Dobby/${ANDROID_ABI}/libdobby.a
 )
 
-add_library(AssetsManager SHARED
+add_library(OffhandMod SHARED
     src/main.cpp
     src/Item.cpp
 )
 
-target_include_directories(AssetsManager PRIVATE
+target_include_directories(OffhandMod PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/Dobby
 )
 
-target_link_libraries(AssetsManager
+target_link_libraries(OffhandMod
     preloader
     dobby
     log

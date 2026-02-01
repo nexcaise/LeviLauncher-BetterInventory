@@ -27,5 +27,5 @@ jobs:
         
     - uses: actions/upload-artifact@v4
       with:
-        name: libAssetsManager
-        path: build/libAssetsManager.so
+        name: libOffhandMod
+        path: build/libOffhandMod.so
