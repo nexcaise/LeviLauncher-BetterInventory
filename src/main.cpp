@@ -39,8 +39,9 @@ void hook(
         const Experiments& experiments
 ) {
     LOGI("Hook::Running");
+    ItemRegistry.shutdown();
     orig(self, uk, itemRegistry, baseGameVersion, experiments);
-    
+    /*
 	ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
     ItemRegistry& reg = *registry;
     
@@ -48,7 +49,7 @@ void hook(
     {
         LOGI("ns: %s", pair.second.get()->mNamespace.c_str());
         LOGI("rn: %s", pair.second.get()->mRawNameId.c_str());
-    }
+    }*/
 }
 
 __attribute__((constructor))
