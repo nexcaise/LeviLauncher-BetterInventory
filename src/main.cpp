@@ -38,18 +38,18 @@ void hook(
         const BaseGameVersion& baseGameVersion,
         const Experiments& experiments
 ) {
-    LOGI("Hook::Running");
-    //temRegistry.shutdown();
-    orig(self, /*uk,*/ itemRegistry, baseGameVersion, experiments);
-    /*
-	ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
+    LOGI("Hook::Start");
+    
+    ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
     //ItemRegistry& reg = *registry;
     
     for (auto& pair : registry->mIdToItemMap)
     {
         LOGI("ns: %s", pair.second.get()->mNamespace.c_str());
         //LOGI("rn: %s", pair.second.get()->mRawNameId.c_str());
-    }*/
+    }
+    LOGI("Hook::End");
+    orig(self, /*uk,*/ itemRegistry, baseGameVersion, experiments);
 }
 
 __attribute__((constructor))
