@@ -23,7 +23,7 @@ namespace cereal { struct ReflectionCtx; }
 
 using TargetFn = void(*)(
         VanillaItems*,
-        //const cereal::ReflectionCtx&,
+        const cereal::ReflectionCtx&
         const ItemRegistryRef,
         const BaseGameVersion&,
         const Experiments&
@@ -33,24 +33,24 @@ static TargetFn orig = nullptr;
 
 void hook(
         VanillaItems* self,
-        //const cereal::ReflectionCtx& uk,
+        const cereal::ReflectionCtx& uk
         const ItemRegistryRef itemRegistry,
         const BaseGameVersion& baseGameVersion,
         const Experiments& experiments
 ) {
     LOGI("Hook::Start");
     
-    /*ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
+    ItemRegistry* registry = itemRegistry.mWeakRegistry.lock().get();
     //ItemRegistry& reg = *registry;
     
     for (auto& pair : registry->mIdToItemMap)
     {
         LOGI("ns: %s", pair.second.get()->mNamespace.c_str());
         //LOGI("rn: %s", pair.second.get()->mRawNameId.c_str());
-    }*/
-    LOGI("Item Count: %d", itemRegistry.getItemCount());
+    }
+    //LOGI("Item Count: %d", itemRegistry.getItemCount());
     LOGI("Hook::End");
-    orig(self, /*uk,*/ itemRegistry, baseGameVersion, experiments);
+    orig(self, uk, itemRegistry, baseGameVersion, experiments);
 }
 
 __attribute__((constructor))
