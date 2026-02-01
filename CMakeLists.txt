@@ -49,7 +49,9 @@ set_target_properties(dobby PROPERTIES
 
 add_library(OffhandMod SHARED
     src/main.cpp
-    src/Item.cpp
+    src/util/Item.cpp
+    src/util/ItemRegistryRef.cpp
+    src/util/string/StringHash.cpp
 )
 
 target_include_directories(OffhandMod PRIVATE
