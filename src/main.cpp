@@ -40,15 +40,17 @@ void hook(
 ) {
     LOGI("Hook::Start");
 
-    if (orig)
+    if (orig) {
+        LOGI("Orig();");
         orig(self, ctx, itemRegistry, baseGameVersion, experiments);
-
+    }
+/*
     auto sp = itemRegistry.mWeakRegistry.lock();
     if (!sp) {
         LOGI("Registry expired");
         return;
     }
-    
+    */
     auto& wp = itemRegistry.mWeakRegistry;
     LOGI("weak_ptr addr=%p", &wp);
 
