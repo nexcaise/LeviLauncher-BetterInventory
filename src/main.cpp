@@ -44,21 +44,18 @@ void hook(
         LOGI("Orig();");
         orig(self, ctx, itemRegistry, baseGameVersion, experiments);
     }
-/*
+    
     auto sp = itemRegistry.mWeakRegistry.lock();
     if (!sp) {
         LOGI("Registry expired");
+        LOGI("Hook::End");
         return;
     }
-    */
-    auto& wp = itemRegistry.mWeakRegistry;
-    LOGI("weak_ptr addr=%p", &wp);
-
-    auto spi = wp.lock();
-    LOGI("lock result=%p", spi.get());
-
-    ItemRegistry* reg = spi.get();
-    LOGI("Registry ptr=%p", reg);
+    
+    for (auto& pair : sp.get()->mIdToItemMap)
+    {
+        pair.second.get()->setAllowOffhand(true);
+    }
 
     LOGI("Hook::End");
 }
