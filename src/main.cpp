@@ -40,11 +40,6 @@ void hook(
         Experiments const& experiments
 ) {
     LOGI("Hook::Start");
-
-    if (orig) {
-        LOGI("Orig();");
-        orig(self, ctx, itemRegistry, baseGameVersion, experiments);
-    }
     
     auto sp = itemRegistry._lockRegistry();
     if (!sp) {
@@ -58,6 +53,11 @@ void hook(
         pair.second.get()->setAllowOffhand(true);
     }
 
+    if (orig) {
+        LOGI("Orig();");
+        orig(self, ctx, itemRegistry, baseGameVersion, experiments);
+    }
+    
     LOGI("Hook::End");
 }
 
