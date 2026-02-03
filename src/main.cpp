@@ -32,23 +32,21 @@ InteractionResult* useItemOn_hook(
         bool iFE
 ) {
     Item* item = stack.getItem();
-    InteractionResult* result = useItemOn_orig(self, stack, at, face, hit, tb, iFE);
     //bool realMayUse = stack.mItem == nullptr;//!stack.mValid || stack.mItem == nullptr || stack.isNull() ||/* stack.mCount == 0 || !isSimTick ||*/ !item/* || item->canUseOnSimTick()*/;
 
-    logger.info("res: {}", result->mResult);
     if (!item)
     {
         logger.info("May not use item");
         //result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
-        return result;
+        return useItemOn_orig(self, stack, at, face, hit, tb, iFE);;
     }
     
     logger.info("allowOffhand: {}", (bool)item->mAllowOffhand);
-    item->mAllowOffhand = true;
+    //item->mAllowOffhand = true;
     //item->setAllowOffhand(true);
 
     //result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
-    return result;
+    return useItemOn_orig(self, stack, at, face, hit, tb, iFE);;
 
 }
 
