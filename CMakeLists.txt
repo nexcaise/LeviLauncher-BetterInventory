@@ -49,7 +49,7 @@ set_target_properties(dobby PROPERTIES
 
 add_library(OffhandMod SHARED
     src/main.cpp
-    src/world/item/ItemStack.cpp
+    src/world/item/ItemStackBase.cpp
     src/world/item/Item.cpp
 )
 
