@@ -38,7 +38,7 @@ InteractionResult* useItemOn_hook(
         bool isFirstEvent
 ) {
     const Item *item = stack.getItem();
-    bool realMayUse = !stack.mValid || stack.mItem == nullptr || stack.isNull() ||/* stack.mCount == 0 || !isSimTick ||*/ !item/* || item->canUseOnSimTick()*/;
+    bool realMayUse = stack.mItem == nullptr;//!stack.mValid || stack.mItem == nullptr || stack.isNull() ||/* stack.mCount == 0 || !isSimTick ||*/ !item/* || item->canUseOnSimTick()*/;
 
     if (!realMayUse)
     {
@@ -47,7 +47,7 @@ InteractionResult* useItemOn_hook(
     }
     
     log.info("item.setAllowOffhand(true);");
-    item.setAllowOffhand(true);
+    item->setAllowOffhand(true);
 
     return orig(self,stack,at,face,hit,tb,isFirstEvent);
 
@@ -60,18 +60,18 @@ void OffhandHooks()
         "libminecraftpe.so"
     );
     if (!addr) {
-        LOGE("Signature not found");
+        log.error("Signature not found");
         return;
     }
-    log("Signature found at: {}", (void*)addr);
+    log.info("Signature found at: {}", (void*)addr);
     int useItemOn_ret = DobbyHook(
         (void*)useItemOn_addr,
         (void*)useItemOn_hook,
         (void**)&useItemOn_orig
     );
     if (useItemOn_ret == 0) {
-        log("DobbyHook success");
+        log.info("DobbyHook success");
     } else {
-        LOGE("DobbyHook failed: {}", useItemOn_ret);
+        log.error("DobbyHook failed: {}", useItemOn_ret);
     }
 }
