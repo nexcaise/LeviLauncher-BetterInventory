@@ -16,6 +16,7 @@ pl::log::Logger omlogger("OffhandMod");
 
 using useItemOnFn = InteractionResult* (*)(
         void*,
+        InteractionResult*,
         ItemStack&,
         void*,
         void*,
@@ -28,6 +29,7 @@ static useItemOnFn useItemOn_orig = nullptr;
 
 InteractionResult* useItemOn_hook(
         void* self,
+        InteractionResult* result
         ItemStack& stack,
         void* at,
         void* face,
@@ -42,14 +44,14 @@ InteractionResult* useItemOn_hook(
     {
         LOGE("!stack");
         omlogger.info("May not use item");
-        return useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
+        return result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
     }
     
     LOGI("OK!");
     omlogger.info("item.setAllowOffhand(true);");
     item->setAllowOffhand(true);
 
-    return useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
+    return result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
 
 }
 
