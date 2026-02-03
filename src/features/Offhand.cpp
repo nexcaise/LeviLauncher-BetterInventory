@@ -16,7 +16,7 @@ using useItemOnFn = InteractionResult(*)(
         bool
 );*/
 
-using useItemOnFn = InteractionResult(*)(
+using useItemOnFn = InteractionResult* (*)(
         void*,
         ItemStack&,
         void*,
@@ -42,7 +42,7 @@ InteractionResult* useItemOn_hook(
 
     if (!realMayUse)
     {
-        omlogger.info("May not use item: {}", stack);
+        omlogger.info("May not use item");
         return useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
     }
     

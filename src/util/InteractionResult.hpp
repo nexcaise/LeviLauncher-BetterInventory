@@ -16,5 +16,5 @@ public:
     InteractionResult(const InteractionResult&) = default;
     InteractionResult& operator=(const InteractionResult&) = default;
 
-    operator Result() const { return static_cast<Result>(mResult); }
+    //operator Result() const { return static_cast<Result>(mResult); }
 };
