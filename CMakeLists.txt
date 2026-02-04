@@ -58,6 +58,7 @@ add_library(OffhandMod SHARED
     src/world/item/ItemStackBase.cpp
     src/world/item/Item.cpp
     src/world/item/registry/ItemRegistryRef.cpp
+    src/world/actor/player/PlayerInventory.cpp
 )
 
 target_include_directories(OffhandMod PRIVATE

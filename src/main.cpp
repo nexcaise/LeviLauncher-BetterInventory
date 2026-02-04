@@ -7,7 +7,10 @@
 #include "world/item/ItemStack.hpp"
 #include "world/item/Item.hpp"
 #include "world/item/registry/ItemRegistry.hpp"
+#include "world/gamemode/GameMode.hpp"
 #include "world/item/registry/ItemRegistryRef.hpp"
+#include "world/actor/player/Player.hpp"
+#include "world/actor/player/PlayerInventory.hpp"
 
 #include <chrono>
 #include <thread>
@@ -32,8 +35,16 @@ using useItemOnFn = InteractionResult* (*)(
         bool
 );
 
+using buildBlockFn = bool (*)(
+        GameMode*,
+        void*,
+        void*,
+        bool
+);
+
 static registerItemsFn registerItems_orig = nullptr;
 static useItemOnFn useItemOn_orig = nullptr;
+static buildBlockFn buildBlock_orig = nullptr;
 
 void registerItems_hook(
         void* self,
@@ -82,6 +93,42 @@ InteractionResult* useItemOn_hook(
     logger.info("Item namespace: {}", item->mNamespace);
 
     return useItemOn_orig(self, stack, at, face, hit, tb, iFE);
+}
+
+
+bool buildBlock_hook(GameMode *self, void* pos, void* face, bool isSimTick) {
+    Player &player = self->mPlayer;
+    PlayerInventory &playerInv = *player.playerInventory;
+
+    const ItemStack &stack = playerInv.getSelectedItem();
+    
+    const Item *item = stack.getItem();
+    
+    if(!item->mAllowOffhand) item->setAllowOffhand(true);
+    
+    return buildBlock_orig(self, pos, face, isSimTick);
+}
+
+void Hook_buildBlock() {
+    uintptr_t addr = pl::signature::pl_resolve_signature(
+        "EC 13 40 F9 E8 03 16 AA",
+        "libminecraftpe.so"
+    );
+    if (!addr) {
+        logger.error("Signature not found");
+        return;
+    }
+    logger.info("Signature found!");
+    int ret = DobbyHook(
+        (void*)addr,
+        (void*)buildBlock_hook,
+        (void**)&buildBlock_orig
+    );
+    if (ret == 0) {
+        logger.info("DobbyHook success buildBlock");
+    } else {
+        logger.error("DobbyHook failed buildBlock: {}", ret);
+    }
 }
 
 void Hook_useItemOn() {
