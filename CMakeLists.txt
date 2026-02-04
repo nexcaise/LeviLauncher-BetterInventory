@@ -23,7 +23,7 @@ FetchContent_MakeAvailable(fmt glm)
 
 FetchContent_Declare(
     preloader_android
-    GIT_REPOSITORY https://github.com/nexcaise/preloader-android.git
+    GIT_REPOSITORY https://github.com/liteLDev/preloader-android.git
     GIT_TAG main
 )
 FetchContent_GetProperties(preloader_android)
@@ -35,6 +35,12 @@ if(NOT preloader_android_POPULATED)
     string(REPLACE "std::vformat" "fmt::vformat" LOGGER_CONTENT "${LOGGER_CONTENT}")
     string(REPLACE "std::make_format_args" "fmt::make_format_args" LOGGER_CONTENT "${LOGGER_CONTENT}")
     file(WRITE "${preloader_android_SOURCE_DIR}/src/pl/Logger.h" "${LOGGER_CONTENT}")
+    
+    file(READ "${CMAKE_SOURCE_DIR}/src/util/Logger.hpp" LOGGER_CONTENT)
+    string(REPLACE "#include <format>" "#include <fmt/format.h>" LOGGER_CONTENT "${LOGGER_CONTENT}")
+    string(REPLACE "std::vformat" "fmt::vformat" LOGGER_CONTENT "${LOGGER_CONTENT}")
+    string(REPLACE "std::make_format_args" "fmt::make_format_args" LOGGER_CONTENT "${LOGGER_CONTENT}")
+    file(WRITE "${CMAKE_SOURCE_DIR}/src/util/Logger.hpp" "${LOGGER_CONTENT}")
     
     add_subdirectory(${preloader_android_SOURCE_DIR} ${preloader_android_BINARY_DIR})
 endif()
@@ -51,6 +57,7 @@ add_library(OffhandMod SHARED
     src/main.cpp
     src/world/item/ItemStackBase.cpp
     src/world/item/Item.cpp
+    src/world/item/registry/ItemRegistryRef.cpp
 )
 
 target_include_directories(OffhandMod PRIVATE

@@ -2,6 +2,6 @@
 
 class Item {
 public:
-    bool mAllowOffhand : 1;
+    bool mAllowOffhand;
 	Item& setAllowOffhand(bool allowOffhand);
 };

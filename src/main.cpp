@@ -1,17 +1,24 @@
 #include "pl/Gloss.h"
 #include <dobby.h>
 #include "pl/Signature.h"
-#include "pl/Logger.h"
+#include "util/Logger.hpp"
 //#include "pl/internal/macro.h"
 #include "util/InteractionResult.hpp"
 #include "world/item/ItemStack.hpp"
 #include "world/item/Item.hpp"
 
-pl::log::Logger logger("Offhand");
+Logger logger("Offhand");
+
+using registerItemsFn = void(*)(
+        void*,
+        void*,
+        ItemRegistryRef,
+        void*,
+        void*
+);
 
 using useItemOnFn = InteractionResult* (*)(
         void*,
-        //InteractionResult*,
         ItemStack&,
         void*,
         void*,
@@ -20,7 +27,34 @@ using useItemOnFn = InteractionResult* (*)(
         bool
 );
 
+static registerItemsFn registerItems_orig = nullptr;
 static useItemOnFn useItemOn_orig = nullptr;
+
+void registerItems_hook(
+        void* self,
+        void* ctx,
+        ItemRegistryRef itemRegistry,
+        void* baseGameVersion,
+        void* experiments
+) {
+    if (registerItems_orig) {
+        logger.info("registerItems_orig");
+        registerItems_orig(self, ctx, itemRegistry, baseGameVersion, experiments);
+    }
+    
+    auto sp = itemRegistry._lockRegistry();
+    if (!sp) {
+        logger.info("ItemRegistry Expired!");
+        return;
+    }
+    
+    for (auto& pair : sp.get()->mIdToItemMap)
+    {
+        pair.second.get()->setAllowOffhand(true);
+    }
+    
+    logger.info("Success registry item!");
+}
 
 InteractionResult* useItemOn_hook(
         void* self,
@@ -32,45 +66,64 @@ InteractionResult* useItemOn_hook(
         bool iFE
 ) {
     Item* item = stack.getItem();
-    //bool realMayUse = stack.mItem == nullptr;//!stack.mValid || stack.mItem == nullptr || stack.isNull() ||/* stack.mCount == 0 || !isSimTick ||*/ !item/* || item->canUseOnSimTick()*/;
 
     if (!item)
     {
-        logger.info("May not use item");
-        //result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
+        logger.info("!item");
         return useItemOn_orig(self, stack, at, face, hit, tb, iFE);;
     }
-    
-    logger.info("allowOffhand: {}", (bool)item->mAllowOffhand);
-    //item->mAllowOffhand = true;
-    //item->setAllowOffhand(true);
 
-    //result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;//useItemOn_orig(self,stack,at,face,hit,tb,isFirstEvent);
-    return useItemOn_orig(self, stack, at, face, hit, tb, iFE);;
+    return useItemOn_orig(self, stack, at, face, hit, tb, iFE);
+}
 
+void Hook_useItemOn() {
+    uintptr_t addr = pl::signature::pl_resolve_signature(
+        "EC 13 40 F9 E8 03 16 AA",
+        "libminecraftpe.so"
+    );
+    if (!addr) {
+        logger.error("Signature not found");
+        return;
+    }
+    logger.info("Signature found!");
+    int ret = DobbyHook(
+        (void*)addr,
+        (void*)useItemOn_hook,
+        (void**)&useItemOn_orig
+    );
+    if (ret == 0) {
+        logger.info("DobbyHook success useItemOn");
+    } else {
+        logger.error("DobbyHook failed useItemOn: {}", ret);
+    }
+}
+
+void Hook_registerItems() {
+    uintptr_t addr = pl::signature::pl_resolve_signature(
+        "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 07 40 D1 FF 03 01 D1 48 D0 3B D5",
+        "libminecraftpe.so"
+    );
+    if (!addr) {
+        logger.error("Signature not found");
+        return;
+    }
+    logger.info("Signature found!");
+    int ret = DobbyHook(
+        (void*)addr,
+        (void*)registerItems_hook,
+        (void**)&registerItems_orig
+    );
+    if (ret == 0) {
+        logger.info("DobbyHook success registerItems");
+    } else {
+        logger.error("DobbyHook failed registerItems: {}", ret);
+    }
 }
 
 __attribute__((constructor))
 void Init() {
     logger.info("Init()");
     GlossInit(true);
-    uintptr_t useItemOn_addr = pl::signature::pl_resolve_signature(
-        "EC 13 40 F9 E8 03 16 AA",
-        "libminecraftpe.so"
-    );
-    if (!useItemOn_addr) {
-        logger.error("Signature not found");
-        return;
-    }
-    logger.info("Signature found!");
-    int useItemOn_ret = DobbyHook(
-        (void*)useItemOn_addr,
-        (void*)useItemOn_hook,
-        (void**)&useItemOn_orig
-    );
-    if (useItemOn_ret == 0) {
-        logger.info("DobbyHook success");
-    } else {
-        logger.error("DobbyHook failed: {}", useItemOn_ret);
-    }
+    Hook_registerItems();
+    Hook_useItemOn();
 }
