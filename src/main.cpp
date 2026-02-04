@@ -42,16 +42,12 @@ void registerItems_hook(
         void* baseGameVersion,
         void* experiments
 ) {
-    if (registerItems_orig) {
-        logger.info("registerItems_orig");
-        registerItems_orig(self, ctx, itemRegistry, baseGameVersion, experiments);
-    }
-    
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    
+
     auto sp = itemRegistry._lockRegistry();
     if (!sp) {
         logger.info("ItemRegistry Expired!");
+        logger.info("registerItems_orig");
+        registerItems_orig(self, ctx, itemRegistry, baseGameVersion, experiments);
         return;
     }
     
@@ -60,7 +56,10 @@ void registerItems_hook(
         pair.second.get()->setAllowOffhand(true);
     }
     
-    logger.info("Success registry item!");
+    logger.info("Success registry custom item!");
+    
+    logger.info("registerItems_orig");
+    registerItems_orig(self, ctx, itemRegistry, baseGameVersion, experiments);
 }
 
 InteractionResult* useItemOn_hook(
