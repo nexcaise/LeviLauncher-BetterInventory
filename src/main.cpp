@@ -6,6 +6,8 @@
 #include "util/InteractionResult.hpp"
 #include "world/item/ItemStack.hpp"
 #include "world/item/Item.hpp"
+#include "world/item/registry/ItemRegistry.hpp"
+#include "world/item/registry/ItemRegistryRef.hpp"
 
 Logger logger("Offhand");
 
