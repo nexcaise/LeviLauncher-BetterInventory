@@ -35,10 +35,10 @@ public:
     std::chrono::steady_clock::time_point mLastBuildTime;
 
     virtual InteractionResult useItemOn(ItemStack& item, const BlockPos pos, FacingID face, const Vec3& clickPos, const Block* block);
+    
+    bool baseUseItem(ItemStack& stack);
 /*
     InteractionResult _sendUseItemOnEvents(ItemStack& item, const BlockPos& pos, FacingID face, const Vec3& clickPos);
-
-    bool baseUseItem(ItemStack& stack);
 
     void _sendPlayerInteractWithBlockAfterEvent(Player& player, const BlockPos& pos, FacingID face, const Vec3& at);
 */
