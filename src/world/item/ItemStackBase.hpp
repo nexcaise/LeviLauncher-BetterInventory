@@ -7,4 +7,7 @@ public:
     WeakPtr<Item> mItem;
     
     Item* getItem() const;
+    
+    bool hasTag(const HashedString& tag) const;
+    bool isInstance(const HashedString& itemName, bool useItemLookup) const;
 };

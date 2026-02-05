@@ -59,6 +59,8 @@ public:
 */
 public:
     //virtual ~BlockSource();
+    
+    virtual const Block& getLiquidBlock(const BlockPos& p) const;
     virtual const Block& getBlock(int x, int y, int z) const;
     virtual const Block& getBlock(const BlockPos& pos) const; // 16
     virtual const Block& getBlock(const BlockPos& pos, unsigned int layer) const;

@@ -15,6 +15,13 @@ mce::Color Block::getMapColor(BlockSource& region, const BlockPos& pos) const
     return this->mLegacyBlock->getMapColor(region, pos, *this);
 }
 */
+
+bool Block::getCollisionShape(AABB& outAABB, const BlockSource& region, const BlockPos& pos, optional_ref<const GetCollisionShapeInterface> entity) const
+{
+    outAABB = this->mLegacyBlock->getCollisionShape(*this, region, pos, entity);
+    return outAABB.min.x < outAABB.max.x && outAABB.min.y < outAABB.max.y && outAABB.min.z < outAABB.max.z;
+}
+
 bool Block::canBeBuiltOver(BlockSource& region, const BlockPos& pos) const {
     return mLegacyBlock->canBeBuiltOver(region, pos);
 }

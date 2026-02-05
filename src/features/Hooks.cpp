@@ -1,4 +1,63 @@
-#include "hooks/GameModeHooks.hpp"
+#include "features/Hooks.hpp"
+
+Logger logger("Offhand");
+
+bool Hook(
+    const char* sig,
+    void* hook,
+    void** orig
+) {
+    uintptr_t addr = pl::signature::pl_resolve_signature(sig, "libminecraftpe.so");
+    if (!addr) {
+        logger.error("signature not found");
+        return false;
+    }
+
+    int ret = DobbyHook((void*)addr, hook, orig);
+    if (ret != 0) {
+        logger.error("DobbyHook failed: {}", ret);
+        return false;
+    }
+
+    logger.info("Hook success");
+    return true;
+}
+/*
+using registerItemsFn = void(*)(
+        void*,
+        void*,
+        ItemRegistryRef,
+        void*,
+        void*
+);
+*/
+using useItemOnFn = InteractionResult* (*)(
+        void*,
+        ItemStack&,
+        void*,
+        void*,
+        void*,
+        void*,
+        bool
+);
+
+using buildBlockFn = bool (*)(
+        GameMode*,
+        void*,
+        void*,
+        bool
+);
+
+using handleFn = InventoryTransactionError (*)(
+        ItemUseInventoryTransaction*,
+        Player&,
+        bool
+);
+
+//static registerItemsFn registerItems_orig = nullptr;
+static useItemOnFn useItemOn_orig = nullptr;
+static buildBlockFn buildBlock_orig = nullptr;
+static handleFn handle_orig = nullptr;
 
 InteractionResult* GameMode_useItemOn(GameMode* self, ItemStack& item, const BlockPos& at, FacingID face, const Vec3& hit, const Block* targetBlock)
 {
@@ -9,7 +68,7 @@ InteractionResult* GameMode_useItemOn(GameMode* self, ItemStack& item, const Blo
     result->mResult = 0;
 
     // idk what this does but it doesn't seem to have anything to do with networking / decreasing item stack
-    if ((self->_sendUseItemOnEvents(item, at, face, hit).mResult & (int)InteractionResult::Result::SUCCESS) == 0) return result;
+    //if ((self->_sendUseItemOnEvents(item, at, face, hit).mResult & (int)InteractionResult::Result::SUCCESS) == 0) return result;
 
     // todo: check that the player has use ability
     bool hasPermissions = true; 
@@ -64,7 +123,7 @@ InteractionResult* GameMode_useItemOn(GameMode* self, ItemStack& item, const Blo
 
             // This is probably just for scripting so dont care
 			// ItemEventCoordinator::sendEvent(v42, &v67); <- ItemUsedOnEvent
-            self->_sendPlayerInteractWithBlockAfterEvent(self->mPlayer, at, face, hit);
+            //self->_sendPlayerInteractWithBlockAfterEvent(self->mPlayer, at, face, hit);
 
 			self->mBuildContext.mLastBuildBlockWasSnappable = wasSnappable;
 			result->mResult = (int)InteractionResult::Result::SUCCESS | (int)InteractionResult::Result::SWING;
@@ -290,4 +349,171 @@ bool GameMode_buildBlock(GameMode *self, BlockPos *pos, FacingID face, bool isSi
     if (usedMainhand) return true;
     
     return tryUseItem(*self, offHandItem, player, *equipment->mHand, 1, ContainerID::CONTAINER_ID_OFFHAND, *pos, face, isSimTick, true);
+}
+
+InventoryTransactionError ItemUseInventoryTransaction_handle(ItemUseInventoryTransaction* self, Player& player, bool isSenderAuthority) {
+    if (!player.isAlive()) {
+		Log::Warning("InventoryTransactionError::StateMismatch - Player is not alive");
+		return InventoryTransactionError::StateMismatch;
+    }
+
+	Level& level = *player.getLevel()->asLevel();
+	bool isClientSide = level.isClientSide;
+    BlockPalette& blockPalette = level.getBlockPalette();
+
+    ItemStack stack = ItemStack::fromDescriptor(self->mItem, blockPalette, isClientSide);
+
+    PlayerInventory& playerInv = *player.playerInventory;
+    Inventory& inv = *playerInv.mInventory.get();
+    const ItemStack& mainHandItem = playerInv.getSelectedItem();
+    ActorEquipmentComponent* equipment = player.tryGetComponent<ActorEquipmentComponent>();
+    const ItemStack& offHandItem = equipment->mHand->mItems[1];
+
+    // This could probably be more verbose in checking, but the logic is if the two stacks are the same, it was probably the mainhand?
+    // There probably is some weird edgecase around this
+    bool usedMainhand = stack.mItem == mainHandItem.mItem;
+    const ItemStack& stackToUse = usedMainhand ? mainHandItem : offHandItem;
+    Container* containerToUse = usedMainhand ? &inv : (Container*)equipment->mHand.get();
+
+    bool itemsMatch = true; // InventoryTransaction::checkTransactionItemsMatch
+	bool slotsMatch = true; // self->mSlot == playerInv.mSelected; <- to check properly probs need to switch between offhand and inv slots
+
+    bool areItemsAndSlotsValid = isSenderAuthority || itemsMatch && slotsMatch;
+
+    if (!areItemsAndSlotsValid) {
+		Log::Warning("InventoryTransactionError::ProbablyError - Items or slots do not match");
+        return InventoryTransactionError::ProbablyError;
+    }
+
+    GameMode& gameMode = player.getGameMode();
+    float maxPickRange = gameMode.getMaxPickRange() + 0.5f;
+    bool distanceCheck = player.distanceTo(self->mPos) <= maxPickRange;
+
+    bool isValidAction = self->mActionType == ItemUseInventoryTransaction::ActionType::Use || distanceCheck || isSenderAuthority;
+
+    if (!isValidAction) {
+        return InventoryTransactionError::ProbablyError;
+    }
+
+    ContainerID containerId = usedMainhand ? ContainerID::CONTAINER_ID_INVENTORY : ContainerID::CONTAINER_ID_OFFHAND;
+
+	InventorySource source(
+        InventorySourceType::ContainerInventory, 
+        containerId,
+        InventorySource::InventorySourceFlags::NoFlag
+    );
+
+	const std::vector<InventoryAction>& actions = self->mTransaction.getActions(source);
+    
+    for (auto& action : actions) {
+        Log::Info("Todo: action not handled!!");
+        // todo: game does something, there are no actions sent for placing blocks it seems?
+    }
+
+    playerInv.createTransactionContext(
+        [&self, &player, containerId](Container& container, unsigned int slot, const ItemStack& oldStack, const ItemStack newStack) {
+            InventorySource source(InventorySourceType::ContainerInventory, containerId, InventorySource::InventorySourceFlags::NoFlag);
+            InventoryAction action(source, slot, oldStack, newStack);
+            player.mTransactionManager.addExpectedAction(action);
+        },
+        [&self, &gameMode, &stackToUse, &level, &containerToUse]() {
+            if (self->mActionType == ItemUseInventoryTransaction::ActionType::Use) {
+				ItemStack stackCopy = ItemStack(stackToUse);
+
+                // Seems to return false for things the server needs to update the client on
+                // i.e. stone block returns true
+                // but torch item returns false
+                if (!gameMode.baseUseItem(stackCopy)) {
+					self->resendPlayerState(gameMode.mPlayer);
+                }
+            }
+            else if (self->mActionType == ItemUseInventoryTransaction::ActionType::Destroy) {
+				Log::Info("todo impl self->mActionType == ItemUseInventoryTransaction::ActionType::Destroy");
+            }
+            else if (self->mActionType == ItemUseInventoryTransaction::ActionType::Place) {
+				bool isClientSide = level.isClientSide;
+                BlockPalette& blockPalette = level.getBlockPalette();
+                ItemStack stackCopy = ItemStack(stackToUse);
+
+                // Idk why this exists or what the fuck it does... 
+                //if (!Actor::isSneaking(*(a1 + 8)))
+                //{
+                //    v8 = Player::getSelectedItem(*(a1 + 8));
+                //    ItemStack::operator=(&itemStack, v8);
+                //}
+
+				const Block& blockToPlaceOn = blockPalette.getBlock(self->mTargetBlockId);
+
+                Block* v18 = nullptr;
+                //Actor::setPos(*(a1 + 8), (*a1 + 232i64));
+
+                /*while (1)
+                {
+                    v18 = *v17;
+                    if ((*v17)->mSerializationIdHash == v14->mSerializationIdHash)
+                        break;
+                    mLegacyBlock = v18->mLegacyBlock;
+                    if (!mLegacyBlock || (v16 = v14->mLegacyBlock) == 0i64)
+                        gsl::details::terminate(v16);
+                    if (mLegacyBlock == v16 && Block::allowStateMismatchOnPlacement(*v17, v14))
+                        break;
+                    if (++v17 == &v42)
+                        goto LABEL_17;
+                }*/
+
+                InteractionResult result = gameMode.useItemOn(stackCopy, self->mPos, self->mFace, self->mClickPos, v18);
+                // Actor::setPos(*(a1 + 8), v39);
+
+                if ((result.mResult & (int)InteractionResult::Result::SUCCESS) != 0)
+                {
+                    bool itemsMatch = false; // todo: ItemStackBase::operator!=(&itemStack, v25)
+
+                    if (!itemsMatch) {
+                        containerToUse->setItem(self->mSlot, stackCopy);
+                    }   
+
+                    if (gameMode.isLastBuildBlockInteractive()) {
+                        // I'm pretty sure this is just for scripting and so i dont really care to impl it.
+                         //BlockEventCoordinator& blockEvents = level.getBlockEventCoordinator();
+                         //blockEvents.sendBlockInteractedWith(gameMode.mPlayer, self->mPos);
+                    }
+                }
+                else {
+					self->resendBlocksAroundArea(gameMode.mPlayer, self->mPos, self->mFace);
+					self->resendPlayerState(gameMode.mPlayer);
+                }
+            }
+        }
+    );
+
+    // What on earth does this mean
+    // ComplexInventoryTransaction::_setDepenetrationOverride(this, (player + 8));
+
+    return InventoryTransactionError::ProbablyError; // todo: return correct error code
+}
+
+void RegisterHooks() {
+    /*Hook(
+        "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 07 40 D1 FF 03 01 D1 48 D0 3B D5",
+        (void*)registerItems_hook,
+        (void**)&registerItems_orig
+    );*/
+    
+    Hook(
+        "EC 13 40 F9 E8 03 16 AA",
+        (void*)GameMode_useItemOn,
+        (void**)&useItemOn_orig
+    );
+    
+    Hook(
+        "FF C3 04 D1 FD 7B 0D A9 FC 73 00 F9 FA 67 0F A9 F8 5F 10 A9 F6 57 11 A9 F4 4F 12 A9 FD 43 03 91 59 D0 3B D5 F6 03 03 2A",
+        (void*)GameMode_buildBlock,
+        (void**)&buildBlock_orig
+    );
+    
+    Hook(
+        "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 03 1A D1 55 D0 3B D5",
+        (void*)ItemUseInventoryTransaction_handle,
+        (void**)&handle_orig
+    );
 }

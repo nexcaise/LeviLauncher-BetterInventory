@@ -12,6 +12,10 @@
 #include "world/phys/Vec3.hpp"
 */
 
+#include "world/phys/AABB.hpp"
+
+#include "world/level/block/GetCollisionShapeInterface.hpp"
+#include "util/optional_ref.hpp"
 #include "world/level/block/BlockLegacy.hpp"
 #include "world/level/block/BlockProperty.hpp"
 /*
@@ -19,6 +23,7 @@ namespace mce {
 class Color;
 }*/
 class BlockSource;
+//class GetCollisionShapeInterface;
 class BlockPos;
 /*using DataID = unsigned short;
 
@@ -72,6 +77,7 @@ public:
 class Block/* : public BlockComponentStorage*/ {
 public:
       //const uint16_t mData;
+      uint64_t mSerializationIdHash;
       gsl::not_null<class BlockLegacy*> mLegacyBlock;
       /*CachedComponentData mCachedComponentData;
       BlockComponentDirectData mDirectData;
@@ -108,6 +114,8 @@ public:
     MC bool use(Player& player, const BlockPos& at, FacingID face, std::optional<Vec3> hit) const;
 
     bool isInteractiveBlock() const;*/
+    
+    bool getCollisionShape(AABB& outAABB, const BlockSource& region, const BlockPos& pos, optional_ref<const GetCollisionShapeInterface> entity) const;
     bool hasProperty(BlockProperty property) const;
 	/*bool requiresCorrectToolForDrops() const;
 
