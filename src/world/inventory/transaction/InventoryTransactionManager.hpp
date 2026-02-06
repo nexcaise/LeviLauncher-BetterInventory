@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "mc/src/common/world/inventory/transaction/InventoryTransaction.hpp"
-#include "mc/src/common/world/inventory/transaction/InventoryAction.hpp"
+#include "world/inventory/transaction/InventoryTransaction.hpp"
+#include "world/inventory/transaction/InventoryAction.hpp"
 
 class Player;
 

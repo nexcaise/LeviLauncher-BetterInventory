@@ -1,5 +1,5 @@
 #pragma once
-#include "mc/src/common/world/actor/player/PlayerInventory.hpp"
+#include "world/actor/player/PlayerInventory.hpp"
 
 enum class InventorySourceType : uint32_t {
     InvalidInventory = 0xFFFFFFFF,

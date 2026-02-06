@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "mc/src/common/world/inventory/transaction/InventoryTransaction.hpp"
+#include "world/inventory/transaction/InventoryTransaction.hpp"
 
 class ComplexInventoryTransaction {
 public:

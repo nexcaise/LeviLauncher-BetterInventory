@@ -5,6 +5,7 @@
 
 #include "world/entity/EntityContext.hpp"
 #include "world/level/ILevel.hpp"
+#include "world/level/Level.hpp"
 #include "world/actor/player/PlayerInventory.hpp"
 
 #include "world/level/dimension/Dimension.hpp"
@@ -24,12 +25,19 @@ public:
     BuiltInActorComponents mBuiltInComponents;
     std::unique_ptr<ItemStackNetManagerBase> mItemStackNetManager;
     
+    float distanceTo(const Vec3& other) const;
     bool isClientSide() const;
     const LayeredAbilities& getAbilities() const;
     bool canUseOperatorBlocks() const;
     Vec3* getPosition() const;
     bool isCreative() const;
+    virtual void sendComplexInventoryTransaction(std::unique_ptr<ComplexInventoryTransaction> unk0) const = 0;
     virtual void swing();
+    Level* getLevel() const
+    {
+		if (mLevel != nullptr) return static_cast<Level*>(mLevel);
+        return nullptr;
+    }
     const BlockSource& getDimensionBlockSourceConst() const;
     BlockSource& getDimensionBlockSource() const;
     

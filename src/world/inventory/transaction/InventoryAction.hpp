@@ -1,7 +1,7 @@
 #pragma once
-#include "mc/src/common/world/inventory/transaction/InventorySource.hpp"
-#include "mc/src/common/world/item/ItemStack.hpp"
-#include "mc/src/common/world/inventory/network/NetworkItemStackDescriptor.hpp"
+#include "world/inventory/transaction/InventorySource.hpp"
+#include "world/item/ItemStack.hpp"
+#include "world/inventory/network/NetworkItemStackDescriptor.hpp"
 
 class InventoryAction {
 public:

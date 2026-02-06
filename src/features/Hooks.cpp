@@ -354,7 +354,7 @@ bool GameMode_buildBlock(GameMode *self, BlockPos *pos, FacingID face, bool isSi
 
 InventoryTransactionError ItemUseInventoryTransaction_handle(ItemUseInventoryTransaction* self, Player& player, bool isSenderAuthority) {
     if (!player.isAlive()) {
-		Log::Warning("InventoryTransactionError::StateMismatch - Player is not alive");
+		logger.warn("InventoryTransactionError::StateMismatch - Player is not alive");
 		return InventoryTransactionError::StateMismatch;
     }
 
@@ -382,7 +382,7 @@ InventoryTransactionError ItemUseInventoryTransaction_handle(ItemUseInventoryTra
     bool areItemsAndSlotsValid = isSenderAuthority || itemsMatch && slotsMatch;
 
     if (!areItemsAndSlotsValid) {
-		Log::Warning("InventoryTransactionError::ProbablyError - Items or slots do not match");
+		logger.warn("InventoryTransactionError::ProbablyError - Items or slots do not match");
         return InventoryTransactionError::ProbablyError;
     }
 
@@ -407,7 +407,7 @@ InventoryTransactionError ItemUseInventoryTransaction_handle(ItemUseInventoryTra
 	const std::vector<InventoryAction>& actions = self->mTransaction.getActions(source);
     
     for (auto& action : actions) {
-        Log::Info("Todo: action not handled!!");
+        logger.info("Todo: action not handled!!");
         // todo: game does something, there are no actions sent for placing blocks it seems?
     }
 
@@ -429,7 +429,7 @@ InventoryTransactionError ItemUseInventoryTransaction_handle(ItemUseInventoryTra
                 }
             }
             else if (self->mActionType == ItemUseInventoryTransaction::ActionType::Destroy) {
-				Log::Info("todo impl self->mActionType == ItemUseInventoryTransaction::ActionType::Destroy");
+				logger.info("todo impl self->mActionType == ItemUseInventoryTransaction::ActionType::Destroy");
             }
             else if (self->mActionType == ItemUseInventoryTransaction::ActionType::Place) {
 				bool isClientSide = level.isClientSide;

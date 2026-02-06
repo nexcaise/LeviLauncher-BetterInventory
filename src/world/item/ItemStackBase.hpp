@@ -8,6 +8,7 @@
 using byte = uint8_t;
 
 class Item;
+class BlockLegacy;
 
 class ItemStackBase {
 public:

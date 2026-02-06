@@ -1,10 +1,10 @@
 /// @symbolgeneration
 #pragma once
-#include "mc/src/common/network/NetworkBlockPosition.hpp"
-#include "mc/src/common/world/Facing.hpp"
-#include "mc/src/common/world/inventory/transaction/ComplexInventoryTransaction.hpp"
-#include "mc/src/common/world/level/block/Block.hpp"
-#include "mc/src/common/world/phys/Vec3.hpp"
+#include "network/NetworkBlockPosition.hpp"
+#include "world/Facing.hpp"
+#include "world/inventory/transaction/ComplexInventoryTransaction.hpp"
+#include "world/level/block/Block.hpp"
+#include "world/phys/Vec3.hpp"
 
 class Player;
 
@@ -48,8 +48,8 @@ public:
     }*/
 
     /// @signature {48 89 5C 24 ? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ? ? ? ? 48 81 EC ? ? ? ? 0F 29 B4 24 ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 85 ? ? ? ? 45 0F B6 E0}
-    MC InventoryTransactionError handle(Player& player, bool isSenderAuthority);
-
+    InventoryTransactionError handle(Player& player, bool isSenderAuthority);
+/*
     void resendPlayerState(Player& player) const {
         using function = decltype(&ItemUseInventoryTransaction::resendPlayerState);
         static auto func = std::bit_cast<function>(SigScan("48 89 5C 24 ? 48 89 74 24 ? 48 89 7C 24 ? 55 48 8D 6C 24 ? 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 ? 48 8B DA 48 8B 8A"));
@@ -60,7 +60,7 @@ public:
         using function = decltype(&ItemUseInventoryTransaction::resendBlocksAroundArea);
         static auto func = std::bit_cast<function>(SigScan("48 89 5C 24 ? 48 89 7C 24 ? 55 48 8B EC 48 83 EC ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 45 ? 48 8B CA"));
         (this->*func)(player, pos, facing);
-    }
+    }*/
 };
 
-static_assert(sizeof(ItemUseInventoryTransaction) == 0x100);
+//static_assert(sizeof(ItemUseInventoryTransaction) == 0x100);

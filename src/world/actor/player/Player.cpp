@@ -5,6 +5,11 @@
 //#include <mc/src/common/world/entity/components/UserEntityIdentifierComponent.hpp>
 //#include "Player.hpp"
 
+float Actor::distanceTo(const Vec3& other) const
+{
+    return other.distance(*getPosition());
+}
+
 bool Actor::isClientSide() const
 {
     return mLevel->isClientSide();
