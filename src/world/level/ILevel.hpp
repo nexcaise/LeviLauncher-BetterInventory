@@ -6,4 +6,5 @@ class ILevel {
 public:
     virtual GameType getDefaultGameType() const;
     virtual BlockPalette& getBlockPalette() const;
+    virtual bool isClientSide() const;
 };

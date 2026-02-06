@@ -5,6 +5,16 @@
 //#include <mc/src/common/world/entity/components/UserEntityIdentifierComponent.hpp>
 //#include "Player.hpp"
 
+bool Actor::isClientSide() const
+{
+    return mLevel->isClientSide();
+}
+
+Vec3* Actor::getPosition() const
+{
+    return &mBuiltInComponents.mStateVectorComponent->mPos;
+}
+
 const Dimension& Player::getDimensionConst() const
 {
     return *mDimension.lock();

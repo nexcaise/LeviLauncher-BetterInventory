@@ -1,7 +1,7 @@
 set_project("OffhandMod")
 set_version("1.0.0")
 
-set_languages("c99", "cxx20")
+set_languages("c99", "cxx23")
 
 add_rules("mode.release")
 

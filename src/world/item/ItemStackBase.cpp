@@ -14,3 +14,27 @@ bool ItemStackBase::hasTag(const HashedString& tag) const
 {
     return mItem && mItem->hasTag(tag);
 }
+
+WeakPtr<BlockLegacy> ItemStackBase::getLegacyBlock() const
+{
+    if (mItem && mItem->mLegacyBlock) {
+        return mItem->mLegacyBlock;
+    }
+
+    return WeakPtr<BlockLegacy>();
+}
+
+bool ItemStackBase::isNull() const {
+    if (!mValid) 
+        return true;
+    Item* item = mItem.get();
+
+    if (!item || item->mFullName != HashedString("minecraft:air")) {
+        if (mCount != 0 || mBlock != nullptr || mAuxValue != 0) 
+            return false;
+        if (item || mUserData != 0 || mCanDestroyHash != 0 || mCanPlaceOnHash != 0) 
+            return false;
+    }
+
+    return true;
+}

@@ -12,6 +12,7 @@ class ItemTag : public HashedString {
 
 class Item {
 public:
+    WeakPtr<BlockLegacy> mLegacyBlock;
     bool mAllowOffhand;
 	Item& setAllowOffhand(bool allowOffhand);
 	std::string mNamespace;
@@ -19,5 +20,6 @@ public:
 	std::vector<ItemTag> mTags;
 	
 	bool hasTag(const HashedString& tag) const;
+	virtual bool canUseOnSimTick() const;
 	virtual bool calculatePlacePos(ItemStackBase& stack, Actor& actor, FacingID& face, BlockPos& pos) const;
 };

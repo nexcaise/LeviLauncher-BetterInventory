@@ -8,6 +8,7 @@
 class BlockItem;
 class BlockPos;
 class BlockSource;
+class Block;
 
 class BlockLegacy {
 
@@ -25,6 +26,7 @@ public:
     bool isSnappableBlock() const;
     bool isAir() const;
 
+    virtual const Block& getRenderBlock() const;
     virtual AABB getCollisionShape(const Block& unk0, const BlockSource& unk1, const BlockPos& unk2, optional_ref<const GetCollisionShapeInterface> unk3) const;
     virtual bool canContainLiquid() const;
     virtual bool isFenceBlock() const;
