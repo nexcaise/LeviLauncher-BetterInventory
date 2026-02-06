@@ -43,31 +43,28 @@ target("preloader")
     add_packages("fmt", "glm", "nlohmann_json")
     add_includedirs("preloader-android/src", {public = true})
 
-target("dobby")
-    set_kind("static")
-    add_linkdirs("Dobby/$(arch)")
-    add_links("dobby")
-    set_default(false)
-
 target("OffhandMod")
     set_kind("shared")
-    add_files(
-        "src/**.cpp"
-    )
+
+    add_files("src/**.cpp")
+
     add_headerfiles(
         "src/**.hpp",
-        "Dobby/**.hpp",
         "Dobby/**.h"
     )
+
     add_includedirs(
         "src",
         "Dobby",
         "preloader-android/src",
         {public = true}
     )
+
     add_deps("preloader")
+
     add_packages("fmt", "glm", "nlohmann_json")
-    add_links(
-        "log",
-        "dobby"
-    )
+
+    add_linkdirs("Dobby/$(arch)")
+    add_files("Dobby/$(arch)/libdobby.a")
+
+    add_links("log")
