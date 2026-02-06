@@ -1,11 +1,13 @@
 #pragma once
 
-#include "world/item/Item.hpp"
+//#include "world/item/Item.hpp"
 #include "util/SharedPtr.hpp"
 #include <cstddef>
 #include <cstdint>
 
 using byte = uint8_t;
+
+class Item;
 
 class ItemStackBase {
 public:
