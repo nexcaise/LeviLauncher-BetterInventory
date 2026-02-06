@@ -1,4 +1,4 @@
-#include "world/item/registry/ItemRegistryRef.hpp"
+/*#include "world/item/registry/ItemRegistryRef.hpp"
 //#include "amethyst/Memory.hpp"
 
 std::shared_ptr<ItemRegistry> ItemRegistryRef::_lockRegistry() const
@@ -10,4 +10,4 @@ std::shared_ptr<ItemRegistry> ItemRegistryRef::_lockRegistry() const
     }
     //Assert(lock.operator bool(), "ItemRegistryRef cannot access ItemRegistry - attempt to lock weak_ptr returned null!");
     return lock;
-}
+}*/

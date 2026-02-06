@@ -52,18 +52,13 @@ target("OffhandMod")
     set_kind("shared")
     add_files(
         "src/**.cpp",
-        "src/**.c",
-        "include/**.cpp"
     )
     add_headerfiles(
         "src/**.hpp",
-        "include/**.hpp",
-        "include/**.h",
         "Dobby/**.hpp",
         "Dobby/**.h"
     )
     add_includedirs(
-        "include",
         "src",
         "Dobby",
         "preloader-android/src",
