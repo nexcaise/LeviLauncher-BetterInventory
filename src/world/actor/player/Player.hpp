@@ -16,6 +16,7 @@ struct BuiltInActorComponents {
 
 class Player {
 public:
+    InventoryTransactionManager mTransactionManager;
     PlayerInventory* playerInventory;
     ILevel* mLevel;
     EntityContext mEntityContext;
@@ -28,6 +29,7 @@ public:
     bool canUseOperatorBlocks() const;
     Vec3* getPosition() const;
     bool isCreative() const;
+    virtual void swing();
     const BlockSource& getDimensionBlockSourceConst() const;
     BlockSource& getDimensionBlockSource() const;
     
@@ -43,5 +45,20 @@ public:
     {
         auto& registry = mEntityContext.getRegistry();
         return registry.try_get<T>(mEntityContext.mEntity);
+    }
+    
+     template <typename T>
+    bool hasComponent() const
+    {
+        const auto& registry = mEntityContext.getRegistry();
+        return registry.all_of<T>(mEntityContext.mEntity);
+    }
+
+    template <typename T, typename... Args>
+    T& addComponent(Args&&... args)
+    {
+        auto& registry = mEntityContext.getRegistry();
+        //Assert(!registry.all_of<T>(mEntityContext.mEntity), "Entity already has component");
+        return registry.emplace<T>(mEntityContext.mEntity, std::forward<Args>(args)...);
     }
 };
