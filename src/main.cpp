@@ -1,5 +1,5 @@
 #include <pl/Gloss.h>
-#include "features/Hooks.hpp"
+#include "features/RegisterHooks.hpp"
 
 __attribute__((constructor))
 void Init() {

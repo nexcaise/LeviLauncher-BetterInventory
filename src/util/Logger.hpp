@@ -5,6 +5,8 @@
 #include <string>
 #include <string_view>
 
+extern Logger logger("Better Inventory");
+
 class Logger {
     public:
         explicit Logger(std::string name) : loggerName(std::move(name)) {}
