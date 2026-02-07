@@ -38,7 +38,7 @@ add_requires(
 target("BetterInventory")
     set_kind("shared")
     add_files("src/**.cpp")
-    add_headerfiles("src/**.hpp", "preloader/src/**.hpp")
+    add_headerfiles("src/**.hpp", "preloader/src/**.h")
     add_includedirs(
         "src",
         "preloader/src",
