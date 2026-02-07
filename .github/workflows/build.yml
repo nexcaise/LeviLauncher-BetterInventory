@@ -33,5 +33,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: libOffhandMod
-          path: build/android/arm64-v8a/release/libOffhandMod.so
+          name: libBetterInventory
+          path: build/android/arm64-v8a/release/libBetterInventory.so
