@@ -29,21 +29,14 @@ add_ldflags(
 )
 
 add_repositories("xmake-repo https://github.com/xmake-io/xmake-repo.git")
+add_repositories("levimc-repo https://github.com/LiteLDev/xmake-repo.git")
 
-add_requires(
-    "fmt 10.2.1",
-    "glm 0.9.9+8"
-)
+add_requires("preloader_android 0.1.13")
 
 target("BetterInventory")
     set_kind("shared")
     add_files("src/**.cpp")
-    add_headerfiles("src/**.hpp", "preloader/src/**.h")
-    add_includedirs(
-        "src",
-        "preloader/src",
-        {public = true}
-    )
-    add_linkdirs("preloader/lib")
-    add_packages("fmt", "glm")
-    add_links("log", "preloader")
+    add_headerfiles("src/**.hpp")
+    add_includedirs("src", {public = true})
+    add_packages("preloader_android")
+    add_links("log")

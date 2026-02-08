@@ -1,6 +1,6 @@
 #include "util/Hooks.hpp"
 
-//Logger logger("Better Inventory");
+Logger logger("Better Inventory");
 
 bool VHOOK(
     const char* typeinfoName,
