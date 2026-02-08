@@ -40,3 +40,5 @@ class Logger {
                                 loggerName.c_str(), msg.c_str());
         }
 };
+
+Logger getLogger();

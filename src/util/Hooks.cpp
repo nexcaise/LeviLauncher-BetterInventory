@@ -1,7 +1,5 @@
 #include "util/Hooks.hpp"
 
-Logger logger("Better Inventory");
-
 bool VHOOK(
     const char* typeinfoName,
     int vtableIndex,
@@ -21,7 +19,7 @@ bool VHOOK(
     }
 
     if (!libBase) {
-        logger.error("VHOOK: !libBase");
+        getLogger().error("VHOOK: !libBase");
         return false;
     }
 
@@ -47,7 +45,7 @@ bool VHOOK(
     }
 
     if (!typeinfoNameAddr) {
-        logger.error("VHOOK: !typeinfoNameAddr");
+        getLogger().error("VHOOK: !typeinfoNameAddr");
         return false;
     }
 
@@ -70,7 +68,7 @@ bool VHOOK(
     }
 
     if (!typeinfoAddr) {
-        logger.error("VHOOK: !typeinfoAddr");
+        getLogger().error("VHOOK: !typeinfoAddr");
         return false;
     }
 
@@ -93,7 +91,7 @@ bool VHOOK(
     }
 
     if (!vtableAddr) {
-        logger.error("VHOOK: !vtableAddr");
+        getLogger().error("VHOOK: !vtableAddr");
         return false;
     }
 
@@ -105,7 +103,7 @@ bool VHOOK(
     *slot = (uintptr_t)hook;
     mprotect((void*)page, 4096, PROT_READ);
 
-    logger.info("VHOOK: succes!");
+    getLogger().info("VHOOK: succes!");
     return true;
 }
 
@@ -116,16 +114,16 @@ bool HOOK(
 ) {
     uintptr_t addr = pl::signature::pl_resolve_signature(sig, "libminecraftpe.so");
     if (!addr) {
-        logger.error("HOOK failed: signature not found");
+        getLogger().error("HOOK failed: signature not found");
         return false;
     }
 
     int ret = pl::hook::pl_hook((pl::hook::FuncPtr)addr, (pl::hook::FuncPtr)hook, (pl::hook::FuncPtr*)&orig, pl::hook::PriorityHighest);
     if (ret != 0) {
-        logger.error("HOOK failed: {}", ret);
+        getLogger().error("HOOK failed: {}", ret);
         return false;
     }
 
-    logger.info("HOOK: success!");
+    getLogger().info("HOOK: success!");
     return true;
 }

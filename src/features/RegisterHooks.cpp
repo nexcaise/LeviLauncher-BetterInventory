@@ -1,8 +1,6 @@
 #include "features/RegisterHooks.hpp"
 #include <string>
 
-Logger logger("Better Inventory");
-
 class BaseGameVersion;
 class Experiments;
 namespace cereal { struct ReflectionCtx; }
@@ -25,17 +23,17 @@ void hook(
         const BaseGameVersion& baseGameVersion,
         const Experiments& experiments
 ) {
-    logger.info("Hook Function Called");
-    logger.info("Calling Original Function...");
+    getLogger().info("Hook Function Called");
+    getLogger().info("Calling Original Function...");
     orig(self, uk, itemRegistry, baseGameVersion, experiments);
     
-    logger.info("trying patch item...");
+    getLogger().info("trying patch item...");
     ItemRegistry* registry = itemRegistry._lockRegistry().get();
     for (auto& pair : registry->mIdToItemMap)
     {
         pair.second.get()->setAllowOffhand(true);
     }
-    logger.info("Success!");
+    getLogger().info("Success!");
 }
 
 class ShulkerBoxBlockItem;
