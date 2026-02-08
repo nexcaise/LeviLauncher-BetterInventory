@@ -73,7 +73,8 @@ int FoodItem_getUseDuration_hook(
         void* self,
         ItemStack* stack
 ) {
-    return 10;
+    int original_d = FoodItem_getUseDuration_orig(self, stack);
+    return original_d * 10;
 }
 
 void RegisterHooks() {
