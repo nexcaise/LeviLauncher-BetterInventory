@@ -1,6 +1,8 @@
 #include "features/RegisterHooks.hpp"
 #include <string>
 
+Logger logger("Better Inventory");
+
 class BaseGameVersion;
 class Experiments;
 namespace cereal { struct ReflectionCtx; }
