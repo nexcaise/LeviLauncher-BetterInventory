@@ -60,6 +60,22 @@ inline void ShulkerBoxBlockItem_appendFormattedHovertext_hook(
     if (ShulkerBoxBlockItem_appendFormattedHovertext_orig) ShulkerBoxBlockItem_appendFormattedHovertext_orig(self, stack, level, out, flag);
 }
 
+class ItemStack;
+
+using FoodItemFn = int(*)(
+        void*,
+        ItemStack*
+);
+
+static FoodItemFn FoodItem_getUseDuration_orig = nullptr;
+
+int FoodItem_getUseDuration_hook(
+        void* self,
+        ItemStack* stack
+) {
+    return 10;
+}
+
 void RegisterHooks() {
     HOOK(
         "FD 7B BA A9 FC 6F 01 A9 FA 67 02 A9 F8 5F 03 A9 F6 57 04 A9 F4 4F 05 A9 FD 03 00 91 FF 07 40 D1 FF 83 00 D1 48 D0 3B D5 EA 83 00 B2",
@@ -71,6 +87,11 @@ void RegisterHooks() {
         55,
         (void*)ShulkerBoxBlockItem_appendFormattedHovertext_hook,
         (void**)&ShulkerBoxBlockItem_appendFormattedHovertext_orig
+    );
+    HOOK(
+        "_ZNK8FoodItem14getUseDurationERK9ItemStack"
+        (void*)FoodItem_getUseDuration_hook,
+        (void**)&FoodItem_getUseDuration_orig
     );
 };
 
