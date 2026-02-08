@@ -73,8 +73,8 @@ int FoodItem_getUseDuration_hook(
         void* self,
         ItemStack* stack
 ) {
-    int original_d = FoodItem_getUseDuration_orig(self, stack);
-    return original_d * 10;
+    //int original_d = FoodItem_getUseDuration_orig(self, stack);
+    return 25;
 }
 
 void RegisterHooks() {
@@ -85,12 +85,13 @@ void RegisterHooks() {
     );
     VHOOK(
         "19ShulkerBoxBlockItem",
-        55,
+        54,
         (void*)ShulkerBoxBlockItem_appendFormattedHovertext_hook,
         (void**)&ShulkerBoxBlockItem_appendFormattedHovertext_orig
     );
     HOOK(
-        "_ZNK8FoodItem14getUseDurationERK9ItemStack",
+        "8FoodItem",
+        5,
         (void*)FoodItem_getUseDuration_hook,
         (void**)&FoodItem_getUseDuration_orig
     );
