@@ -1,4 +1,4 @@
-set_project("OffhandMod")
+set_project("Better Inventory")
 set_version("1.0.0")
 
 set_languages("c99", "cxx23")
