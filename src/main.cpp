@@ -89,7 +89,7 @@ void RegisterHooks() {
         (void**)&ShulkerBoxBlockItem_appendFormattedHovertext_orig
     );
     HOOK(
-        "_ZNK8FoodItem14getUseDurationERK9ItemStack"
+        "_ZNK8FoodItem14getUseDurationERK9ItemStack",
         (void*)FoodItem_getUseDuration_hook,
         (void**)&FoodItem_getUseDuration_orig
     );
